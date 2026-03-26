@@ -1,124 +1,97 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
+import pokemonLogo from '../public/International_Pokémon_logo.svg'
 import './App.css'
 
-import * as d3 from "d3";
+import Card from './Card';
+import ElementButton from './ElementButton';
 
-const data = [4, 8, 15, 16, 23, 42];
-console.log("Max:", d3.max(data));
+import { pokemons, iconsByType, colorByType } from './pokemonData';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [filterType, setFilterType] = useState(null);
+  const [favoriteIds, setFavoriteIds] = useState(() => new Set());
+  const [showFavorites, setShowFavorites] = useState(false);
+
+  const filteredPokemons = filterType
+    ? pokemons.filter((pokemon) => pokemon.type.toLowerCase() === filterType)
+    : pokemons;
+
+  const toggleFavorite = (id) => {
+    setFavoriteIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const toggleShowFavorites = () => {
+    setShowFavorites((prev) => !prev);
+  };
+
+  const favoritePokemons = pokemons.filter((pokemon) => favoriteIds.has(pokemon.id));
 
   return (
     <>
       <section id="center">
         <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
+          <img src={pokemonLogo} alt="Pokemon logo" width="400" />
         </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+        <div className="app-layout">
+          <aside className="sidebar" aria-label="controls">
+            {iconsByType.map((icon) => (
+              <ElementButton
+                key={icon.type}
+                label={icon.type}
+                iconUrl={icon.iconUrl}
+                color={colorByType[icon.type.toLowerCase()]}
+                active={filterType === icon.type || (icon.type === "favorites" && showFavorites)}
+                onClick={() => {
+                  if (icon.type === "favorites") {
+                    toggleShowFavorites();
+                    setFilterType(null);
+                  } else if (icon.type !== "favorites" && showFavorites) {
+                    toggleShowFavorites(false);
+                    setFilterType(icon.type);
+                  } else {
+                    setFilterType((prev) => (prev === icon.type ? null : icon.type));
+                  }
+                }}
+              />
+            ))}
+          </aside>
 
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
+          <div className="card-grid">
+            {showFavorites ? 
+            favoritePokemons.map((pokemon) => (
+              <Card
+                key={pokemon.id}
+                title={pokemon.name}
+                color={colorByType[pokemon.type.toLowerCase()]}
+                id={pokemon.id}
+                hp={pokemon.hp}
+                attack={pokemon.attack}
+                imgUrl={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemon.id}.png`}
+                favorite={true}
+                onToggleFavorite={() => toggleFavorite(pokemon.id)}
+              />
+            )) : 
+            filteredPokemons.map((pokemon) => (
+              <Card
+                key={pokemon.id}
+                title={pokemon.name}
+                color={colorByType[pokemon.type.toLowerCase()]}
+                id={pokemon.id}
+                hp={pokemon.hp}
+                attack={pokemon.attack}
+                imgUrl={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemon.id}.png`}
+                favorite={favoriteIds.has(pokemon.id)}
+                onToggleFavorite={() => toggleFavorite(pokemon.id)}
+              />
+            ))}
+          </div>
         </div>
       </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
     </>
   )
 }
