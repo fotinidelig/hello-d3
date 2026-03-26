@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import pokemonLogo from '../public/International_Pokémon_logo.svg'
 import './App.css'
 
 import Card from './Card';
@@ -35,7 +34,7 @@ function App() {
     <>
       <section id="center">
         <div className="hero">
-          <img src={pokemonLogo} alt="Pokemon logo" width="400" />
+          <img src="logo.png" alt="Pokemon logo" width="400" />
         </div>
         <div className="app-layout">
           <aside className="sidebar" aria-label="controls">
