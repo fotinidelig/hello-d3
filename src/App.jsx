@@ -91,6 +91,14 @@ function App() {
           </div>
         </div>
       </section>
+      <section>
+        <div className="footer">
+          <span>&copy; Fotini Deligiannaki</span>
+          <span style={{ fontSize: '13px' }}>
+            <a href="https://github.com/fotinidelig/first-d3-plots">View on Github</a>
+          </span>
+        </div>
+      </section>
     </>
   )
 }
